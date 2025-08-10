@@ -7,5 +7,7 @@ namespace API.Data
     {
         public required DbSet<Product> Products { get; set; }
         public required DbSet<Property> Properties { get; set; }
+        public required DbSet<Basket> Baskets { get; set; }
+        public required DbSet<Favorite> Favorites { get; set; }
     }
 }

@@ -1,8 +1,7 @@
 import {  useState } from "react"
-import Catalog from "../../features/catalog/Catalog";
 import { Box, Container, createTheme, CssBaseline, ThemeProvider } from "@mui/material";
 import Navbar from "./NavBar";
-import { Outlet } from "react-router-dom";
+import { Outlet, ScrollRestoration } from "react-router-dom";
 
 
 function App() {
@@ -30,8 +29,9 @@ const toggleDarkMode = () =>{
   return (
     
     <ThemeProvider theme={theme}>
+        <ScrollRestoration />
       <CssBaseline />
-    <Navbar toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
+    <Navbar  />
     <Box sx={{
       minHeight:'100vh', background: darkMode ?  
       'radial-gradient(circle,#1e3aBa,#111B27)' : 'radial-gradient(circle,#baecf9,#f0f9ff)',
