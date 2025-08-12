@@ -1,26 +1,36 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { useDispatch, useSelector } from "react-redux";
-import { catalogApi } from "../../features/catalog/catalogApi";
 import { uiSlice } from "../layout/uiSlice";
 import { errorApi } from "../../features/about/errorApi";
-import { basketApi } from "../../features/basket/basketApi";
-import { catalogSlice } from "../../features/catalog/catalogSlice";
+import { propertyApi } from "../../features/property/propertyApi";
+import { properySlice } from "../../features/property/propertySlice";
+import { favoriteApi } from "../../features/favorite/favoriteApi";
+import { accountApi } from "../../features/account/accountApi";
+import authSlice from "../../features/account/authSlice";
+
 
 
 export const store = configureStore({
     reducer: {
-        [catalogApi.reducerPath]: catalogApi.reducer,
+        [propertyApi.reducerPath]: propertyApi.reducer,
         [errorApi.reducerPath]: errorApi.reducer,
-        [basketApi.reducerPath]: basketApi.reducer,
+        [favoriteApi.reducerPath]:favoriteApi.reducer,
+          [accountApi.reducerPath]: accountApi.reducer,
+       
        
         ui: uiSlice.reducer,
-        catalog: catalogSlice.reducer
+        property: properySlice.reducer,
+        auth:authSlice
+        
+,
     },
     middleware: (getDefaultMiddleware) => 
         getDefaultMiddleware().concat(
-            catalogApi.middleware, 
+            propertyApi.middleware,
             errorApi.middleware,
-            basketApi.middleware
+            favoriteApi.middleware,
+             accountApi.middleware,
+          
         )
 });
 
