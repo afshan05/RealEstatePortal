@@ -2,6 +2,7 @@ import { Box, Button, Card, CardContent, CardMedia, Chip, Typography, Grid2 } fr
 import { Bed, Bathtub, DirectionsCar, Favorite } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import { useAddFavoritePropertyMutation, useFetchFavoriteQuery } from "../favorite/favoriteApi";
+import { useUserInfoQuery } from "../account/accountApi";
 
 export type Property = {
     id: number;
@@ -12,7 +13,7 @@ export type Property = {
     listingType: string; // "Buy" / "Rent"
     bedrooms: number;
     bathrooms: number;
-    carspots: number;
+    carSpots: number;
     description: string;
     imageUrl: string;
 };
@@ -22,10 +23,14 @@ type Props = {
 };
 
 export default function PropertyCard({ property }: Props) {
-    const { data: favorite } = useFetchFavoriteQuery();
-
+    const { data: user } = useUserInfoQuery();
+    //const { data: favorite } = useFetchFavoriteQuery();
+ const { data: favorite } = useFetchFavoriteQuery(undefined, {
+        skip: !user // Only fetch favorites if user is logged in
+    });
     const [addToFavorites, { isLoading }] = useAddFavoritePropertyMutation();
     const isFavorited = favorite?.favoriteItems.some(fav => fav.propertyId === property.id);
+    const isLoggedIn = !!user; 
     return (
         <Card
             elevation={3}
@@ -88,7 +93,7 @@ export default function PropertyCard({ property }: Props) {
                     <Grid2 sx={{ xs: 4 }}>
                         <Box display="flex" flexDirection="column" alignItems="center">
                             <DirectionsCar fontSize="small" />
-                            <Typography variant="caption">{property.carspots}</Typography>
+                            <Typography variant="caption">{property.carSpots}</Typography>
                         </Box>
                     </Grid2>
                 </Grid2>
@@ -104,7 +109,7 @@ export default function PropertyCard({ property }: Props) {
                     >
                         View
                     </Button>
-
+   {isLoggedIn && (
                    <Button
   size="small"
   variant="outlined"
@@ -114,6 +119,7 @@ export default function PropertyCard({ property }: Props) {
 >
   {isFavorited ? <Favorite sx={{ color: 'red' }}  /> : "Add TO Favorites"}
 </Button>
+   )}
                 </Box>
             </CardContent>
         </Card>

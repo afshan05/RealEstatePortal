@@ -1,11 +1,11 @@
 import { AppBar, Badge, Box, IconButton, LinearProgress, List, ListItem, Toolbar, Typography } from "@mui/material";
-import { DarkMode, Favorite, LightMode } from '@mui/icons-material';
+import {  Favorite } from '@mui/icons-material';
 import { Link, NavLink } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "../store/store";
-import { setDarkMode } from "./uiSlice";
+import {  useAppSelector } from "../store/store";
 import { useFetchFavoriteQuery } from "../../features/favorite/favoriteApi";
 import { useUserInfoQuery } from "../../features/account/accountApi";
 import UserMenu from "./UserMenu";
+
 
 const midLinks = [
       { title: 'property', path: '/property' },
@@ -31,22 +31,25 @@ const navStyles = {
 
 export default function NavBar() {
       const {data: user} = useUserInfoQuery();
-    const {isLoading, darkMode} = useAppSelector(state => state.ui);
-    const dispatch = useAppDispatch();
-   
+    
+
+    // const {isLoading, darkMode} = useAppSelector(state => state.ui);
+    // const dispatch = useAppDispatch();
+   const {isLoading} = useAppSelector(state=> state.ui);
     const { data: favorite } = useFetchFavoriteQuery();
 
-    const favoriteCount = favorite?.favoriteItems?.length || 0;
+    //const favoriteCount = favorite?.favoriteItems?.length || 0;
+    const favoriteCount = user ? (favorite?.favoriteItems?.length || 0) : 0;
 
 
     return (
        <AppBar position="fixed">
     <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Box display='flex' alignItems='center'>
-            <Typography component={NavLink} sx={navStyles} to='/' variant="h6">RE-STORE</Typography>
-            <IconButton onClick={() => dispatch(setDarkMode())}>
+            <Typography component={NavLink} sx={navStyles} to='/' variant="h6">Real Esate</Typography>
+            {/* <IconButton onClick={() => dispatch(setDarkMode())}>
                 {darkMode ? <DarkMode /> : <LightMode sx={{ color: 'yellow' }} />}
-            </IconButton>
+            </IconButton> */}
         </Box>
 
         <List sx={{ display: 'flex' }}>
@@ -64,12 +67,13 @@ export default function NavBar() {
 
         <Box display='flex' alignItems='center'>
             {/* Favorites Button */}
+            {user && (
             <IconButton component={Link} to='/favorites' size="large" sx={{ color: 'inherit' }}>
                 <Badge badgeContent={favoriteCount} color="secondary">
                     <Favorite />
                 </Badge>
             </IconButton>
-
+)}
           
 
            {user ? (

@@ -1,104 +1,107 @@
-// src/features/account/accountApi.ts
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import type { RootState } from "../../app/store/store";
-import { toast } from "react-toastify";
+import { createApi } from "@reduxjs/toolkit/query/react";
+import { baseQueryWithErrorHandling } from "../../app/api/baseApi";
 import { router } from "../../app/routes/Routes";
+import { toast } from "react-toastify";
+import type { LoginSchema } from "../../lib/schemas/loginSchema";
+import type { User } from "../../app/models/user";
+import { favoriteApi } from "../favorite/favoriteApi";
 
-
-interface User {
-  id: number;
-  username: string;
-  email: string;
-}
-
-interface LoginRequest {
-  username: string;
-  password: string;
-}
-
-interface LoginResponse {
-  token: string;
-}
-
+const nukeCookies = () => {
+    const domains = [
+        window.location.hostname,
+        'localhost',
+        '127.0.0.1'
+    ];
+    
+    const paths = ['/', '/api', '/account'];
+    
+    domains.forEach(domain => {
+        paths.forEach(path => {
+            document.cookie = `.AspNetCore.Identity.Application=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=${domain}; path=${path};`;
+        });
+    });
+};
 export const accountApi = createApi({
-  reducerPath: "accountApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: "https://localhost:5001/backend/",
-
-    prepareHeaders: (headers, { getState }) => {
-  const reduxToken = (getState() as RootState).auth.token;
-  const localToken = localStorage.getItem('token');
-  console.log('Redux token:', reduxToken);
-  console.log('LocalStorage token:', localToken);
-  
-  const token = reduxToken || localToken;
-  if (token) {
-    headers.set('Authorization', `Bearer ${token}`);
-    console.log('Authorization header set');
-  } else {
-    console.log('No token available');
-  }
-  return headers;
-},
-  }),
-  tagTypes: ["UserInfo"],
-  endpoints: (builder) => ({
-    login: builder.mutation<LoginResponse, LoginRequest>({
-      query: (credentials) => ({
-        url: "account/login",
-        method: "POST",
-        body: credentials,
-      }),
-      async onQueryStarted(_, {queryFulfilled}) {
-    try {
-      const { data } = await queryFulfilled;
-      // Store token in localStorage
-      localStorage.setItem('token', data.token);
-      // You should also dispatch an action to store token in Redux state
-      // dispatch(setToken(data.token));
-      toast.success('Login successful');
-      router.navigate('/');
-    } catch (error) {
-      console.log(error);
-      toast.error('Login failed');
-    }
-  }
-    }),
-     register: builder.mutation<void, object>({
-            query: (creds) => {
-                return {
-                    url: 'account/register',
-                    method: 'POST',
-                    body: creds
+    reducerPath: 'accountApi',
+    baseQuery: baseQueryWithErrorHandling,
+    tagTypes: ['UserInfo'],
+    endpoints: (builder) => ({
+        login: builder.mutation<{token: string}, LoginSchema>({
+            query: (creds) => ({
+                url: 'account/login',
+                method: 'POST',
+                body: creds
+            }),
+            async onQueryStarted(_, {dispatch, queryFulfilled}) {
+                try {
+                    const { data } = await queryFulfilled;
+                   // console.log("token=",data.token);
+                    localStorage.setItem('jwt', data.token);
+                    dispatch(accountApi.util.invalidateTags(['UserInfo']));
+                } catch (error) {
+                    console.log(error);
                 }
-            },
+            }
+        }),
+        register: builder.mutation<{token: string}, object>({
+            query: (creds) => ({
+                url: 'account/register',
+                method: 'POST',
+                body: creds
+            }),
             async onQueryStarted(_, {queryFulfilled}) {
                 try {
-                    await queryFulfilled;
-                    toast.success('Registration successful - you can now sign in!');
-                    router.navigate('/login');
+                    const { data } = await queryFulfilled;
+                    localStorage.setItem('jwt', data.token);
+                    toast.success('Registration successful!');
+                    router.navigate('/');
                 } catch (error) {
                     console.log(error);
                     throw error;
                 }
             }
         }),
-    userInfo: builder.query<User, void>({
-      query: () => "account/user-info",
-      providesTags: ["UserInfo"],
+        userInfo: builder.query<User, void>({
+            query: () => 'account/user-info',
+            providesTags: ['UserInfo']
+        }),
+        
+        logout: builder.mutation<void, void>({
+    query: () => ({
+        url: 'account/logout',
+        method: 'POST',
+        // Ensure credentials are included
+        credentials: 'include'
     }),
-     logout: builder.mutation({
-            query: () => ({
-                url: 'account/logout',
-                method: 'POST'
-            }),
-            async onQueryStarted(_, {dispatch, queryFulfilled}) {
-                await queryFulfilled;
-                dispatch(accountApi.util.invalidateTags(['UserInfo']));
-                router.navigate('/');
-            }
-        })
-  }),
+    async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+            // First make the logout request while still authenticated
+            await queryFulfilled;
+            
+            // Then clear client-side state
+            localStorage.removeItem('jwt');
+            nukeCookies();
+            
+            // Reset API states
+            dispatch(favoriteApi.util.resetApiState());
+            dispatch(accountApi.util.resetApiState());
+            dispatch(accountApi.util.invalidateTags(['UserInfo']));
+            
+            // Navigate after successful logout
+            router.navigate('/');
+        } catch (error) {
+            console.error('Logout failed:', error);
+            // Even if request fails, clear client-side state
+            localStorage.removeItem('jwt');
+            nukeCookies();
+            dispatch(favoriteApi.util.resetApiState());
+            router.navigate('/');
+        }
+    }
+})
+    }),
+    refetchOnMountOrArgChange: false,
+    refetchOnReconnect: false,
+    refetchOnFocus: false
 });
-
 export const { useLoginMutation, useUserInfoQuery ,useLazyUserInfoQuery,useRegisterMutation,useLogoutMutation} = accountApi;

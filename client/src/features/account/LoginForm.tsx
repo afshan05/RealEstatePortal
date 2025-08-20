@@ -6,6 +6,7 @@ import { loginSchema, type LoginSchema } from "../../lib/schemas/loginSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLazyUserInfoQuery, useLoginMutation } from "./accountApi";
 
+
 export default function LoginForm() {
     const [login, {isLoading}] = useLoginMutation();
     const [fetchUserInfo] = useLazyUserInfoQuery();
@@ -17,8 +18,8 @@ export default function LoginForm() {
     const navigate = useNavigate();
 
     const onSubmit = async (data: LoginSchema) => {
-        await login(data);
-        await fetchUserInfo();
+        await login(data).unwrap();
+        await fetchUserInfo().unwrap();
         navigate(location.state?.from || '/property');
     } 
 

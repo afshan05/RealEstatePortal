@@ -7,7 +7,7 @@ export type Property = {
     listingType: string,
     bedrooms: number,
     bathrooms: number,
-    carspots: number,
+    carSpots: number,
     description: string,
     imageUrl: string
 }

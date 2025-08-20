@@ -3,7 +3,7 @@ import type { PropertyParams } from "../../app/models/PropertyParams";
 
 const initialState: PropertyParams = {
     pageNumber: 1,
-    pageSize: 8,
+    pageSize: 6,
     listingType: [],
     city: [],
     searchTerm: '',

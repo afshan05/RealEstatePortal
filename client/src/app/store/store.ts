@@ -6,8 +6,6 @@ import { propertyApi } from "../../features/property/propertyApi";
 import { properySlice } from "../../features/property/propertySlice";
 import { favoriteApi } from "../../features/favorite/favoriteApi";
 import { accountApi } from "../../features/account/accountApi";
-import authSlice from "../../features/account/authSlice";
-
 
 
 export const store = configureStore({
@@ -15,21 +13,18 @@ export const store = configureStore({
         [propertyApi.reducerPath]: propertyApi.reducer,
         [errorApi.reducerPath]: errorApi.reducer,
         [favoriteApi.reducerPath]:favoriteApi.reducer,
-          [accountApi.reducerPath]: accountApi.reducer,
-       
-       
+        [accountApi.reducerPath]: accountApi.reducer,
+              
         ui: uiSlice.reducer,
-        property: properySlice.reducer,
-        auth:authSlice
-        
-,
+        property: properySlice.reducer        
+        ,
     },
     middleware: (getDefaultMiddleware) => 
         getDefaultMiddleware().concat(
             propertyApi.middleware,
             errorApi.middleware,
             favoriteApi.middleware,
-             accountApi.middleware,
+            accountApi.middleware,
           
         )
 });

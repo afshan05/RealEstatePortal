@@ -23,6 +23,7 @@ export default function PropertyDetails() {
         { label: 'ListingType', value: property.listingType },
         { label: 'City', value: property.city },
         { label: 'Bedrooms', value: property.bedrooms },
+        { label: 'CarSpts', value: property.carSpots }, 
       ]
     
       

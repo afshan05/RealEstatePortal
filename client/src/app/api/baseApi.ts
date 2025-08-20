@@ -4,8 +4,19 @@ import { toast } from "react-toastify";
 import { router } from "../routes/Routes";
 
 const customBaseQuery = fetchBaseQuery({
-    baseUrl: 'https://localhost:5001/backend',
-    credentials: 'include'
+    baseUrl: 'http://localhost:5298/api',
+    credentials: 'include',
+     prepareHeaders: (headers) => {
+        const token = localStorage.getItem('jwt');
+        if (token) {
+            headers.set('Authorization', `Bearer ${token}`);
+        }
+        // Add CORS headers
+        headers.set('Access-Control-Allow-Origin', 'https://localhost:3000');
+        headers.set('Access-Control-Allow-Credentials', 'true');
+        return headers;
+    }
+    
 });
 
 type ErrorResponse = | string | {title: string} | {errors: string[]};
@@ -16,7 +27,34 @@ export const baseQueryWithErrorHandling = async (args: string | FetchArgs, api: 
     extraOptions: object) => {
     api.dispatch(startLoading());
    
-    const result = await customBaseQuery(args, api, extraOptions);
+    //const result = await customBaseQuery(args, api, extraOptions);
+
+      // Add JWT to headers if it exists
+    const token = localStorage.getItem('jwt');
+    //console.log("token_",token);
+   
+
+    let modifiedArgs = args;
+    
+    if (token) {
+        if (typeof modifiedArgs === 'string') {
+            modifiedArgs = {
+                url: modifiedArgs,
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            };
+        } else {
+            modifiedArgs = {
+                ...modifiedArgs,
+                headers: {
+                    ...modifiedArgs.headers,
+                    Authorization: `Bearer ${token}`
+                }
+            };
+        }
+    }
+     const result = await customBaseQuery(modifiedArgs, api, extraOptions);
     api.dispatch(stopLoading());
     if (result.error) {
         console.log(result.error);

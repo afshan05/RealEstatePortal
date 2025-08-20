@@ -1,6 +1,6 @@
-import { Button, Menu, Fade, MenuItem, ListItemIcon, ListItemText, Divider } from "@mui/material";
+import { Button, Menu,  MenuItem, ListItemIcon, ListItemText } from "@mui/material";
 import { useState } from "react";
-import { History, Logout, Person } from "@mui/icons-material";
+import {  Logout } from "@mui/icons-material";
 import type { User } from "../models/user";
 import { useLogoutMutation } from "../../features/account/accountApi";
 
@@ -32,27 +32,14 @@ export default function UserMenu({ user }: Props) {
             </Button>
             <Menu
                 id="fade-menu"
-                MenuListProps={{
-                    'aria-labelledby': 'fade-button',
-                }}
+                
                 anchorEl={anchorEl}
                 open={open}
                 onClose={handleClose}
-                TransitionComponent={Fade}
+               
             >
-                <MenuItem>
-                    <ListItemIcon>
-                        <Person />
-                    </ListItemIcon>
-                    <ListItemText>My profile</ListItemText>
-                </MenuItem>
-                <MenuItem>
-                    <ListItemIcon>
-                        <History />
-                    </ListItemIcon>
-                    <ListItemText>My orders</ListItemText>
-                </MenuItem>
-                <Divider />
+            
+                
                 <MenuItem onClick={logout}>
                     <ListItemIcon>
                         <Logout />

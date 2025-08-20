@@ -1,7 +1,8 @@
 import type { Property } from "./property";
 
 export type Favorite = {
-    favoriteId: string
+    favoriteId: string,
+     userId?: string,
     favoriteItems: FavoriteItem[]
   }
   
