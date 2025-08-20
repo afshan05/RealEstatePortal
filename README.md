@@ -30,12 +30,14 @@ docker compose up -d
 dotnet run
 2️⃣ Frontend Setup
 1-Navigate to the client folder:
+ ```bash
     cd client
 2-Install dependencies:
-
-npm install
+ ```bash
+   npm install
 
 3-Start the frontend application:
+ ```bash
 npm run
 
 🔑 Test Login Credentials
